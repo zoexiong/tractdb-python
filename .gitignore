@@ -1,0 +1,11 @@
+# virtualenv directory
+env34
+
+# Python compiled files
+*.pyc
+
+# Pycharm files
+.idea
+
+# Our secrets, such as any local config files
+/secrets
