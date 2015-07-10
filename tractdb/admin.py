@@ -129,8 +129,6 @@ class TractDBAdmin(object):
         # Keep only the users that match our pattern, extracting the user
         users = []
         for docid in database_users:
-            print('{}: {}'.format(type(docid), docid))
-
             match = pattern.match(docid)
             if match:
                 account_user = match.group(1)
