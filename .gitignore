@@ -3,6 +3,9 @@ env34
 
 # Python compiled files
 *.pyc
+/build
+/dist
+/*.egg-info
 
 # Pycharm files
 .idea
