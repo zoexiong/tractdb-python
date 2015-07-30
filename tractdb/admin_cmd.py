@@ -30,4 +30,4 @@ def main():
     )
 
     # Do some simple manipulation of the server
-    print(admin.list_users())
+    print(admin.list_accounts())
