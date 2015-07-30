@@ -1,2 +1,6 @@
+# Actually used by tractdb
 couchdb
 PyYAML
+
+# Used in packinging
+twine
