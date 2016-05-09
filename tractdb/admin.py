@@ -99,6 +99,33 @@ class TractDBAdmin(object):
 
         return users
 
+    def reset_password(self, account, account_password):
+        """ Reset an account password.
+        """
+        server = couchdb.Server(self._format_server_url())
+
+        # Our databases are defined by the user name plus the suffix '_tractdb'
+        dbname = '{:s}_tractdb'.format(account)
+
+        # Directly manipulate users database, since it's not meaningfully wrapped
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(account)
+
+        # Confirm the database exists
+        if dbname not in server:
+            raise Exception('Database "{:s}" does not exist.'.format(dbname))
+
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(account))
+
+        # Get the existing document
+        doc_user = database_users[docid_user]
+
+        # Change the password and put it back
+        doc_user['passsword'] = account_password
+        database_users.save(doc_user)
+
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
         """
