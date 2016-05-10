@@ -123,8 +123,8 @@ class TractDBAdmin(object):
         doc_user = database_users[docid_user]
 
         # Change the password and put it back
-        doc_user['passsword'] = account_password
-        database_users.save(doc_user)
+        doc_user['password'] = account_password
+        database_users.update([doc_user])
 
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
