@@ -1,0 +1,6 @@
+main:
+  build: "https://github.com/fogies/docker-couchdb.git"
+  ports:
+    - "5984:5984"
+  volumes:
+    - "{{ CWD }}/tests/test-secrets/secrets_couchdb.yml:/docker-couchdb-secrets/secrets.yml"
