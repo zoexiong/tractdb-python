@@ -35,4 +35,6 @@ script:
   - invoke compile_localize_test_compose
   - docker-compose -f tests/test-compose.localized.yml build
   - docker-compose -f tests/test-compose.localized.yml up -d
+  - docker ps
+  - docker port tests_main
   - nosetests
