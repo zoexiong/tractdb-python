@@ -6,9 +6,10 @@ class TractDBAdmin(object):
     """ Supports administration of a TractDB instance.
     """
 
-    def __init__(self, server_url, server_admin, server_password):
+    def __init__(self, server_url, server_admin, server_password, server_force_http=False):
         """ Create an administration object for a given server, using the given admin / password.
         """
+        self._server_force_http = server_force_http
         self._server_url = server_url
         self._server_admin = server_admin
         self._server_password = server_password
@@ -129,7 +130,12 @@ class TractDBAdmin(object):
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
         """
-        return 'https://{:s}:{:s}@{:s}'.format(self._server_admin, self._server_password, self._server_url)
+        return '{}://{:s}:{:s}@{:s}'.format(
+            'http' if self._server_force_http else 'https',
+            self._server_admin,
+            self._server_password,
+            self._server_url
+        )
 
     def _list_couchdb_databases(self):
         """ List what CouchDB databases exist.
