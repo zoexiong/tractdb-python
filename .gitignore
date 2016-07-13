@@ -7,6 +7,8 @@ env34
 env35
 
 # Compiled Python
+dist
+*.egg-info
 *.pyc
 
 # Localized compose files

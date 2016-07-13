@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='tractdb',
-    version='0.1.1',
+    version='0.1.2',
     description='TractDB',
     url='https://tractdb.org',
     packages=['tractdb'],

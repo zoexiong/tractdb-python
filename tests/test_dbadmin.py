@@ -1,8 +1,10 @@
 import os
-import requests
 import subprocess
 import tractdb.admin
 import unittest
+
+
+BASE_DOCKER_IP = None
 
 
 def setup():
@@ -27,10 +29,9 @@ class TestTractDBAdmin(unittest.TestCase):
     @property
     def admin(self):
         return tractdb.admin.TractDBAdmin(
-            server_url='{}:{}'.format(BASE_DOCKER_IP, 5984),
+            server_url='http://{}:{}'.format(BASE_DOCKER_IP, 5984),
             server_admin='docker-couchdb-test-admin',
-            server_password='docker-couchdb-test-admin-password',
-            server_force_http=True
+            server_password='docker-couchdb-test-admin-password'
         )
 
     def test_create_delete_account(self):
