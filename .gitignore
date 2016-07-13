@@ -12,5 +12,5 @@ env35
 # Localized compose files
 tests/test-compose.localized.yml
 
-# Our secrets, such as any local config files
+# Any secrets, such as passwords or keys
 /secrets

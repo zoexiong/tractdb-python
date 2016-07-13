@@ -23,9 +23,15 @@ def teardown():
 
 
 class TestConnect(unittest.TestCase):
+<<<<<<< HEAD
     def test_connect_couchdb(self):
         response = requests.get(
             'http://{}:5984'.format(
+=======
+    def test_connect(self):
+        response = requests.get(
+            'http://{}'.format(
+>>>>>>> d176b860bf2b937c42dab643394b39acab964344
                 BASE_DOCKER_IP
             )
         )
@@ -36,3 +42,7 @@ class TestConnect(unittest.TestCase):
             response.status_code,
             200
         )
+<<<<<<< HEAD
+=======
+
+>>>>>>> d176b860bf2b937c42dab643394b39acab964344
