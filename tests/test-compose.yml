@@ -1,13 +1,6 @@
-<<<<<<< HEAD
 main:
   build: "https://github.com/fogies/docker-couchdb.git"
   ports:
     - "5984:5984"
   volumes:
     - "{{ CWD }}/tests/test-secrets/secrets_couchdb.yml:/docker-couchdb-secrets/secrets.yml"
-=======
-nginxproxy:
-  image: "nginx"
-  ports:
-    - "80:80"
->>>>>>> d176b860bf2b937c42dab643394b39acab964344
