@@ -11,7 +11,7 @@ setuptools.setup(
         'pyyaml',
     ],
     entry_points={
-        'console_scripts': ['tractdb_admin=tractdb.admin_cmd:main'],
+        'console_scripts': [],
     },
     zip_safe=False,
 )
