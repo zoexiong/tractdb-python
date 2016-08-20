@@ -1,14 +1,17 @@
 # This file compiled from setup.py.in
 import setuptools
 
-VERSION = '0.1.5'
+VERSION = '0.1.6'
 
 setuptools.setup(
     name='tractdb',
     version=VERSION,
     description='TractDB',
     url='https://tractdb.org',
-    packages=['tractdb'],
+    packages=[
+        'tractdb',
+        'tractdb.server'
+    ],
     install_requires=[
         'couchdb',
         'pyyaml',

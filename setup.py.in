@@ -9,7 +9,10 @@ setuptools.setup(
     version=VERSION,
     description='TractDB',
     url='https://tractdb.org',
-    packages=['tractdb'],
+    packages=[
+        'tractdb',
+        'tractdb.server'
+    ],
     install_requires=[
         'couchdb',
         'pyyaml',
