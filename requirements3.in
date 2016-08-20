@@ -5,6 +5,6 @@ invoke==0.12.2
 jinja2
 nose
 pip-tools
-pyyaml --global-option='--without-libyaml'
+pyyaml
 requests
 twine

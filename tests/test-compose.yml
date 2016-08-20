@@ -1,6 +1,7 @@
-main:
+test_couchdb:
+  container_name: test_couchdb
   build: "https://github.com/fogies/docker-couchdb.git"
   ports:
     - "5984:5984"
   volumes:
-    - "{{ CWD }}/tests/test-secrets/secrets_couchdb.yml:/docker-couchdb-secrets/secrets.yml"
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-couchdb-secrets/secrets.yml:ro"
