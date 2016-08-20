@@ -95,6 +95,28 @@ def docker_machine_stop():
     docker_base.compose_run('tests/test-compose.localized.yml', 'stop')
 
 
+@invoke.task(pre=[compile_config])
+def package_publish():
+    # Parse our compile config
+    with open('_compile-config.yml') as f:
+        compile_config_yaml = yaml.safe_load(f)
+
+    # Build the package
+    invoke.run(
+        'python setup.py sdist',
+        encoding=sys.stdout.encoding
+    )
+
+    # Use wheel to publish
+    # Currently using start because input for the password prompt was problematic
+    invoke.run(
+        'start cmd /c twine upload dist\\tractdb-{}.zip'.format(
+            compile_config_yaml['config']['package']['version']
+        ),
+        encoding=sys.stdout.encoding
+    )
+
+
 @invoke.task
 def update_base():
     invoke.run('git pull https://github.com/fogies/testwithdocker-base.git master', encoding=sys.stdout.encoding)

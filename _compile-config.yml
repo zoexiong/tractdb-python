@@ -1,4 +1,10 @@
 config:
+  docker:
+    travis:
+      version: 1.11.2-0~trusty
+      compose_version: 1.8.0-rc1
+      compose_up_delay: 60
+
   local:
     docker:
       cmd_bash: C:/Program Files/Git/bin/bash
@@ -11,16 +17,15 @@ config:
       #   https://github.com/pyinvoke/invoke/issues/345
       invoke_version: 0.12.2
 
-  docker:
-    travis:
-      version: 1.11.2-0~trusty
-      compose_version: 1.8.0-rc1
-      compose_up_delay: 60
+  package:
+    version: 0.1.6
 
 compile_config:
   entries:
     - in:  requirements3.in.in
       out: requirements3.in
+    - in:  setup.py.in
+      out: setup.py
     - in:  .travis.yml.in
       out: .travis.yml
 

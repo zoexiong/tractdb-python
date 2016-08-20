@@ -1,7 +1,8 @@
+{# This file compiles to setup.py -#}
 # This file compiled from setup.py.in
 import setuptools
 
-VERSION = '0.1.6'
+VERSION = '{{ package.version }}'
 
 setuptools.setup(
     name='tractdb',
@@ -21,3 +22,4 @@ setuptools.setup(
     },
     zip_safe=False,
 )
+{# This comment gives us a newline at the end of the generated file #}

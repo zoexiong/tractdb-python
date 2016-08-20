@@ -3,21 +3,21 @@ import re
 import urllib.parse
 
 
-class TractDBAdmin(object):
-    """ Supports administration of a TractDB instance.
+class AccountsAdmin(object):
+    """ Supports management of TractDB accounts.
     """
 
-    def __init__(self, server_url, server_admin, server_password):
-        """ Create an administration object for a given server, using the given admin / password.
+    def __init__(self, couchdb_url, couchdb_admin, couchdb_admin_password):
+        """ Create an admin object.
         """
-        self._server_url = server_url
-        self._server_admin = server_admin
-        self._server_password = server_password
+        self._couchdb_url = couchdb_url
+        self._couchdb_admin = couchdb_admin
+        self._couchdb_admin_password = couchdb_admin_password
 
     def create_account(self, account, account_password):
         """ Create an account.
         """
-        server = couchdb.Server(self._format_server_url())
+        server = self._couchdb_server
 
         # Our databases are defined by the account name plus the suffix '_tractdb'
         dbname = '{:s}_tractdb'.format(account)
@@ -61,7 +61,7 @@ class TractDBAdmin(object):
     def delete_account(self, account):
         """ Delete an account.
         """
-        server = couchdb.Server(self._format_server_url())
+        server = self._couchdb_server
 
         # Our databases are defined by the user name plus the suffix '_tractdb'
         dbname = '{:s}_tractdb'.format(account)
@@ -86,8 +86,8 @@ class TractDBAdmin(object):
     def list_accounts(self):
         """ List our accounts.
         """
-        couchdb_users = self._list_couchdb_users()
-        couchdb_databases = self._list_couchdb_databases()
+        couchdb_users = self._couchdb_users
+        couchdb_databases = self._couchdb_databases
 
         # Keep only users who have a corresponding database
         users = []
@@ -103,7 +103,7 @@ class TractDBAdmin(object):
     def reset_password(self, account, account_password):
         """ Reset an account password.
         """
-        server = couchdb.Server(self._format_server_url())
+        server = self._couchdb_server
 
         # Our databases are defined by the user name plus the suffix '_tractdb'
         dbname = '{:s}_tractdb'.format(account)
@@ -131,19 +131,20 @@ class TractDBAdmin(object):
         """ Format the base URL we use for connecting to the server.
         """
         return '{}://{:s}:{:s}@{:s}'.format(
-            urllib.parse.urlparse(self._server_url).scheme,
-            self._server_admin,
-            self._server_password,
-            self._server_url[
-                len(urllib.parse.urlparse(self._server_url).scheme) + len('://')
+            urllib.parse.urlparse(self._couchdb_url).scheme,
+            self._couchdb_admin,
+            self._couchdb_admin_password,
+            self._couchdb_url[
+                len(urllib.parse.urlparse(self._couchdb_url).scheme) + len('://')
                 :
             ]
         )
 
-    def _list_couchdb_databases(self):
+    @property
+    def _couchdb_databases(self):
         """ List what CouchDB databases exist.
         """
-        server = couchdb.Server(self._format_server_url())
+        server = self._couchdb_server
 
         # Our databases are defined by the user name plus the suffix '_tractdb'
         pattern = re.compile('.*_tractdb')
@@ -151,10 +152,11 @@ class TractDBAdmin(object):
 
         return dbnames
 
-    def _list_couchdb_users(self):
+    @property
+    def _couchdb_users(self):
         """ List what CouchDB users exist.
         """
-        server = couchdb.Server(self._format_server_url())
+        server = self._couchdb_server
 
         # Directly manipulate users database, since it's not meaningfully wrapped
         database_users = server['_users']
@@ -171,3 +173,7 @@ class TractDBAdmin(object):
                 users.append(account_user)
 
         return users
+
+    @property
+    def _couchdb_server(self):
+        return couchdb.Server(self._format_server_url())
