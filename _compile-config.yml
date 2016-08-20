@@ -18,12 +18,14 @@ config:
       invoke_version: 0.12.2
 
   package:
-    version: 0.1.4
+    version: 0.1.5
 
 compile_config:
   entries:
     - in:  requirements3.in.in
       out: requirements3.in
+    - in:  setup.py.in
+      out: setup.py
     - in:  .travis.yml.in
       out: .travis.yml
 
