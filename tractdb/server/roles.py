@@ -2,6 +2,7 @@ import couchdb
 import re
 import urllib.parse
 
+#roles.py
 
 class Group(object):
     """ Add TractDB groups.

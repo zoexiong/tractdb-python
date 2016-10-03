@@ -1,14 +1,14 @@
 config:
-  docker:
-    travis:
-      version: 1.11.2-0~trusty
-      compose_version: 1.8.0-rc1
-      compose_up_delay: 60
-
   local:
     docker:
-      cmd_bash: C:/Program Files/Git/bin/bash
-      cmd_dockermachine: C:/Program Files/Docker Toolbox/docker-machine.exe
+      cmd_bash_macos: /bin/bash
+      cmd_dockermachine_macos: /usr/local/bin/docker-machine
+
+      cmd_bash_windows: C:/Program Files/Git/bin/bash
+      cmd_dockermachine_windows: C:/Program Files/Docker Toolbox/docker-machine.exe
+
+    node:
+      version: 5.1.0
 
     python:
       version: 3.5
@@ -17,15 +17,20 @@ config:
       #   https://github.com/pyinvoke/invoke/issues/345
       invoke_version: 0.12.2
 
-  package:
-    version: 0.1.6
+    ruby:
+      version: 2.2.3
+      bundler_version: 1.10.6
+
+  docker:
+    travis:
+      version: 1.11.2-0~trusty
+      compose_version: 1.8.0-rc1
+      compose_up_delay: 60
 
 compile_config:
   entries:
     - in:  requirements3.in.in
       out: requirements3.in
-    - in:  setup.py.in
-      out: setup.py
     - in:  .travis.yml.in
       out: .travis.yml
 
@@ -33,3 +38,5 @@ compile_docker_localize:
   entries:
     - in:  tests/test-compose.yml
       out: tests/test-compose.localized.yml
+    - in:  _config-test.yml
+      out: _config-test.localized.yml

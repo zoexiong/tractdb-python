@@ -7,38 +7,18 @@
 trap '[ "$?" -eq 0 ] || read -p "Error in step ´$STEP´. Press any key."' EXIT
 
 ################################################################################
-# Name our virtual machine.
+# Confirm our Docker Machine and VirtualBox dependencies.
 ################################################################################
 
 VM="${DOCKER_MACHINE_NAME-default}"
+DOCKER_MACHINE="${DOCKER_TOOLBOX_INSTALL_PATH}/docker-machine.exe"
 
-################################################################################
-# Configure our Docker Machine and VirtualBox dependencies according to our OS.
-################################################################################
-
-if [[ "$OSTYPE" == "msys" ]]; then
-  # Windows with lightweight shell and GNU utilities (part of MinGW)
-  DOCKER_MACHINE="${DOCKER_TOOLBOX_INSTALL_PATH}/docker-machine.exe"
-
-  STEP="Looking for vboxmanage.exe"
-  if [ ! -z "$VBOX_MSI_INSTALL_PATH" ]; then
-    VBOXMANAGE="${VBOX_MSI_INSTALL_PATH}VBoxManage.exe"
-  else
-    VBOXMANAGE="${VBOX_INSTALL_PATH}VBoxManage.exe"
-  fi
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  # Mac OSX
-  DOCKER_MACHINE=/usr/local/bin/docker-machine
-
-  VBOXMANAGE=/Applications/VirtualBox.app/Contents/MacOS/VBoxManage
+STEP="Looking for vboxmanage.exe"
+if [ ! -z "$VBOX_MSI_INSTALL_PATH" ]; then
+  VBOXMANAGE="${VBOX_MSI_INSTALL_PATH}VBoxManage.exe"
 else
-  echo "OSTYPE not recognized."
-  exit 1
+  VBOXMANAGE="${VBOX_INSTALL_PATH}VBoxManage.exe"
 fi
-
-################################################################################
-# Confirm we found our Docker Machine and VirtualBox dependencies.
-################################################################################
 
 if [ ! -f "${DOCKER_MACHINE}" ]; then
   echo "Docker Machine not found."
@@ -85,4 +65,40 @@ VM_STATUS="$("${DOCKER_MACHINE}" status ${VM} 2>&1)"
 if [ "${VM_STATUS}" != "Running" ]; then
   "${DOCKER_MACHINE}" start "${VM}"
   yes | "${DOCKER_MACHINE}" regenerate-certs "${VM}"
+fi
+
+################################################################################
+# Configure the environment for our specific machine.
+################################################################################
+
+STEP="Setting env"
+eval "$("${DOCKER_MACHINE}" env --shell=bash ${VM})"
+
+################################################################################
+# Run our command.
+################################################################################
+
+STEP="Finalize"
+clear
+
+BLUE='\033[1;34m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${BLUE}docker${NC} is configured to use the ${GREEN}${VM}${NC} machine with IP ${GREEN}$("${DOCKER_MACHINE}" ip ${VM})${NC}"
+echo "For help getting started, check out the docs at https://docs.docker.com"
+echo
+cd
+
+docker () {
+  MSYS_NO_PATHCONV=1 "${DOCKER_TOOLBOX_INSTALL_PATH}/docker.exe" "$@"
+}
+export -f docker
+
+if [ $# -eq 0 ]; then
+  echo "Start interactive shell"
+  exec "$BASH" --login -i
+else
+  echo "Start shell with command"
+  exec "$BASH" -c "$*"
 fi
