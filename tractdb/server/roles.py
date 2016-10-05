@@ -4,8 +4,8 @@ import urllib.parse
 
 #roles.py
 
-class Group(object):
-    """ Add TractDB groups.
+class Role(object):
+    """ Add TractDB roles.
     """
 
     def __init__(self, couchdb_url, couchdb_admin, couchdb_admin_password):
@@ -15,35 +15,35 @@ class Group(object):
         self._couchdb_admin = couchdb_admin
         self._couchdb_admin_password = couchdb_admin_password
 
-    def create_account(self, group_name, group_admin):
-        """ Create an group.
+    def create_account(self, role_name, role_admin):
+        """ Create an role.
         """
         server = self._couchdb_server
 
-        # Our databases are defined by the group name plus the suffix '_tractdb'
-        dbname = '{:s}_tractdb'.format(group_name)
+        # Our databases are defined by the role name plus the suffix '_tractdb'
+        dbname = '{:s}_tractdb'.format(role_name)
 
-        # Directly manipulate groups database, since it's not meaningfully wrapped
-        database_groups = server['_groups']
-        docid_group = 'org.couchdb.group:{:s}'.format(group_name)
+        # Directly manipulate roles database, since it's not meaningfully wrapped
+        database_roles = server['_roles']
+        docid_role = 'org.couchdb.role:{:s}'.format(role_name)
 
         # Confirm the database does not exist
         if dbname in server:
             raise Exception('Database "{:s}" already exists.'.format(dbname))
 
-        # Confirm the group does not exist
-        if docid_group in database_groups:
-            raise Exception('Group "{:s}" already exists.'.format(group_name))
+        # Confirm the role does not exist
+        if docid_role in database_roles:
+            raise Exception('role "{:s}" already exists.'.format(role_name))
 
-        # Create the group
-        doc_created_group = {
-            '_id': docid_group,
-            'type': 'group',
-            'name': group_name,
-            'admin': group_admin,
+        # Create the role
+        doc_created_role = {
+            '_id': docid_role,
+            'type': 'role',
+            'name': role_name,
+            'admin': role_admin,
             'roles': [],
         }
-        database_groups.save(doc_created_group)
+        database_roles.save(doc_created_role)
 
         # Create the database
         database_created = server.create(dbname)
@@ -52,54 +52,54 @@ class Group(object):
         security_doc = database_created.security
         security_members = security_doc.get('members', {})
         security_members_names = security_members.get('names', [])
-        if group_name not in security_members_names:
-            security_members_names.append(group_name)
+        if role_name not in security_members_names:
+            security_members_names.append(role_name)
             security_members_names.sort()
             security_members['names'] = security_members_names
             security_doc['members'] = security_members
             database_created.security = security_doc
 
-    def delete_group(self, group_name):
-        """ Delete a group.
+    def delete_role(self, role_name):
+        """ Delete a role.
         """
         server = self._couchdb_server
 
-        # Our databases are defined by the group name plus the suffix '_tractdb'
-        dbname = '{:s}_tractdb'.format(group_name)
+        # Our databases are defined by the role name plus the suffix '_tractdb'
+        dbname = '{:s}_tractdb'.format(role_name)
 
-        # Directly manipulate groups database, since it's not meaningfully wrapped
-        database_groups = server['_groups']
-        docid_group = 'org.couchdb.group:{:s}'.format(group_name)
+        # Directly manipulate roles database, since it's not meaningfully wrapped
+        database_roles = server['_roles']
+        docid_role = 'org.couchdb.role:{:s}'.format(role_name)
 
         # Confirm the database exists
         if dbname not in server:
             raise Exception('Database "{:s}" does not exist.'.format(dbname))
 
-        # Confirm the group exists
-        if docid_group not in database_groups:
-            raise Exception('Group "{:s}" does not exist.'.format(group_name))
+        # Confirm the role exists
+        if docid_role not in database_roles:
+            raise Exception('role "{:s}" does not exist.'.format(role_name))
 
         # Delete them
         server.delete(dbname)
-        doc_group = database_groups[docid_group]
-        database_groups.delete(doc_group)
+        doc_role = database_roles[docid_role]
+        database_roles.delete(doc_role)
 
-    def list_groups(self):
-        """ List our groups.
+    def list_roles(self):
+        """ List our roles.
         """
-        couchdb_groups = self._couchdb_groups
+        couchdb_roles = self._couchdb_roles
         couchdb_databases = self._couchdb_databases
 
-        # Keep only groups which have a corresponding database
-        groups = []
-        for group_current in couchdb_groups:
-            # Our databases are defined by the group name plus the suffix '_tractdb'
-            dbname = '{:s}_tractdb'.format(group_current)
+        # Keep only roles which have a corresponding database
+        roles = []
+        for role_current in couchdb_roles:
+            # Our databases are defined by the role name plus the suffix '_tractdb'
+            dbname = '{:s}_tractdb'.format(role_current)
 
             if dbname in couchdb_databases:
-                groups.append(group_current)
+                roles.append(role_current)
 
-        return groups
+        return roles
 
     # def reset_password(self, account, account_password):
     #     """ Reset an account password.
@@ -154,26 +154,26 @@ class Group(object):
         return dbnames
 
     @property
-    def _couchdb_groups(self):
-        """ List what CouchDB groups exist.
+    def _couchdb_roles(self):
+        """ List what CouchDB roles exist.
         """
         server = self._couchdb_server
 
         # Directly manipulate users database, since it's not meaningfully wrapped
-        database_groups = server['_groups']
+        database_roles = server['_roles']
 
         # This is our docid pattern
-        pattern = re.compile('org\.couchdb\.group:(.*)')
+        pattern = re.compile('org\.couchdb\.role:(.*)')
 
         # Keep only the users that match our pattern, extracting the user
-        groups = []
-        for docid in database_groups:
+        roles = []
+        for docid in database_roles:
             match = pattern.match(docid)
             if match:
-                account_group = match.group(1)
-                groups.append(account_group)
+                account_role = match.role(1)
+                roles.append(account_role)
 
-        return groups
+        return roles
 
     @property
     def _couchdb_server(self):
