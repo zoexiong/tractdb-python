@@ -3,8 +3,8 @@ import re
 import urllib.parse
 
 
-class AccountsAdmin(object):
-    """ Supports management of TractDB accounts.
+class RolesAdmin(object):
+    """ Supports management of roles of TractDB accounts.
     """
 
     def __init__(self, couchdb_url, couchdb_admin, couchdb_admin_password):

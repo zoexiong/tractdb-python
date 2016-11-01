@@ -13,7 +13,7 @@ def teardown():
 class TestTractDBAdmin(unittest.TestCase):
     @property
     def admin(self):
-        return tractdb.server.roles.AccountsAdmin(
+        return tractdb.server.roles.RolesAdmin(
             couchdb_url='http://{}:5984'.format(
                 docker_base.ip()
             ),
