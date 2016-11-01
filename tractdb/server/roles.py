@@ -35,13 +35,13 @@ class AccountsAdmin(object):
         if role in existing_roles:
             raise Exception('role "{}" does exist.'.format(role))
 
-        # Add the role
+        # Add the role to the roles list
         existing_roles.append(role)
 
-        # get the rev
+        # get the rev to make sure we are on the right revision
         rev = doc_user["_rev"]
 
-        # Update the user
+        # Update the user (type and name are required to update user)
         doc_updated_user = {
             'type': 'user',
             '_id': docid_user,
@@ -72,13 +72,13 @@ class AccountsAdmin(object):
         if role not in existing_roles:
             raise Exception('role "{:s}" does not exist.'.format(role))
 
-        # Delete it
+        # Delete it from the roles list
         existing_roles.remove(role)
 
-        # get the rev
+        # get the rev to make sure we are on the right revision
         rev = doc_user["_rev"]
 
-        # Update the user
+        # Update the user (type and name are required to update user)
         doc_updated_user = {
             'type': 'user',
             '_id': docid_user,
@@ -87,52 +87,6 @@ class AccountsAdmin(object):
             "_rev": rev
         }
         database_users.save(doc_updated_user)
-
-
-
-    # def list_accounts(self):
-    #     """ List our accounts.
-    #     """
-    #     couchdb_users = self._couchdb_users
-    #     couchdb_databases = self._couchdb_databases
-    #
-    #     # Keep only users who have a corresponding database
-    #     users = []
-    #     for user_current in couchdb_users:
-    #         # Our databases are defined by the user name plus the suffix '_tractdb'
-    #         dbname = '{:s}_tractdb'.format(user_current)
-    #
-    #         if dbname in couchdb_databases:
-    #             users.append(user_current)
-    #
-    #     return users
-    #
-    # def reset_password(self, account, account_password):
-    #     """ Reset an account password.
-    #     """
-    #     server = self._couchdb_server
-    #
-    #     # Our databases are defined by the user name plus the suffix '_tractdb'
-    #     dbname = '{:s}_tractdb'.format(account)
-    #
-    #     # Directly manipulate users database, since it's not meaningfully wrapped
-    #     database_users = server['_users']
-    #     docid_user = 'org.couchdb.user:{:s}'.format(account)
-    #
-    #     # Confirm the database exists
-    #     if dbname not in server:
-    #         raise Exception('Database "{:s}" does not exist.'.format(dbname))
-    #
-    #     # Confirm the user exists
-    #     if docid_user not in database_users:
-    #         raise Exception('User "{:s}" does not exist.'.format(account))
-    #
-    #     # Get the existing document
-    #     doc_user = database_users[docid_user]
-    #
-    #     # Change the password and put it back
-    #     doc_user['password'] = account_password
-    #     database_users.update([doc_user])
 
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
@@ -146,40 +100,6 @@ class AccountsAdmin(object):
                 :
             ]
         )
-
-    @property
-    def _couchdb_databases(self):
-        """ List what CouchDB databases exist.
-        """
-        server = self._couchdb_server
-
-        # Our databases are defined by the user name plus the suffix '_tractdb'
-        pattern = re.compile('.*_tractdb')
-        dbnames = [dbname for dbname in server if pattern.match(dbname)]
-
-        return dbnames
-
-    @property
-    def _couchdb_users(self):
-        """ List what CouchDB users exist.
-        """
-        server = self._couchdb_server
-
-        # Directly manipulate users database, since it's not meaningfully wrapped
-        database_users = server['_users']
-
-        # This is our docid pattern
-        pattern = re.compile('org\.couchdb\.user:(.*)')
-
-        # Keep only the users that match our pattern, extracting the user
-        users = []
-        for docid in database_users:
-            match = pattern.match(docid)
-            if match:
-                account_user = match.group(1)
-                users.append(account_user)
-
-        return users
 
     @property
     def _couchdb_server(self):
