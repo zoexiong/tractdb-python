@@ -2,10 +2,9 @@ import couchdb
 import re
 import urllib.parse
 
-#roles.py
 
-class Role(object):
-    """ Add TractDB roles.
+class AccountsAdmin(object):
+    """ Supports management of TractDB accounts.
     """
 
     def __init__(self, couchdb_url, couchdb_admin, couchdb_admin_password):
@@ -15,92 +14,99 @@ class Role(object):
         self._couchdb_admin = couchdb_admin
         self._couchdb_admin_password = couchdb_admin_password
 
-    def create_account(self, role_name, role_admin):
-        """ Create an role.
+    def add_role(self, account, role):
+        """ Add a role to a user.
         """
         server = self._couchdb_server
 
-        # Our databases are defined by the role name plus the suffix '_tractdb'
-        dbname = '{:s}_tractdb'.format(role_name)
+        # Directly manipulate users database, since it's not meaningfully wrapped
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(account)
 
-        # Directly manipulate roles database, since it's not meaningfully wrapped
-        database_roles = server['_roles']
-        docid_role = 'org.couchdb.role:{:s}'.format(role_name)
+        # Confirm the user does exist
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" not exists.'.format(account))
 
-        # Confirm the database does not exist
-        if dbname in server:
-            raise Exception('Database "{:s}" already exists.'.format(dbname))
+        # Get the existing document
+        doc_user = database_users[docid_user]
 
-        # Confirm the role does not exist
-        if docid_role in database_roles:
-            raise Exception('role "{:s}" already exists.'.format(role_name))
+        # Confirm role does not exists
+        existing_roles = doc_user['roles']
+        if role in existing_roles:
+            raise Exception('role "{}" does exist.'.format(role))
 
-        # Create the role
-        doc_created_role = {
-            '_id': docid_role,
-            'type': 'role',
-            'name': role_name,
-            'admin': role_admin,
-            'roles': [],
+        # Add the role
+        existing_roles.append(role)
+
+        # get the rev
+        rev = doc_user["_rev"]
+
+        # Update the user
+        doc_updated_user = {
+            'type': 'user',
+            '_id': docid_user,
+            'name': account,
+            'roles': existing_roles,
+            "_rev": rev
         }
-        database_roles.save(doc_created_role)
+        database_users.save(doc_updated_user)
 
-        # Create the database
-        database_created = server.create(dbname)
-
-        # Give the account access to the database
-        security_doc = database_created.security
-        security_members = security_doc.get('members', {})
-        security_members_names = security_members.get('names', [])
-        if role_name not in security_members_names:
-            security_members_names.append(role_name)
-            security_members_names.sort()
-            security_members['names'] = security_members_names
-            security_doc['members'] = security_members
-            database_created.security = security_doc
-
-    def delete_role(self, role_name):
+    def delete_role(self, account, role):
         """ Delete a role.
         """
         server = self._couchdb_server
 
-        # Our databases are defined by the role name plus the suffix '_tractdb'
-        dbname = '{:s}_tractdb'.format(role_name)
+        # Directly manipulate users database, since it's not meaningfully wrapped
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(account)
 
-        # Directly manipulate roles database, since it's not meaningfully wrapped
-        database_roles = server['_roles']
-        docid_role = 'org.couchdb.role:{:s}'.format(role_name)
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(account))
 
-        # Confirm the database exists
-        if dbname not in server:
-            raise Exception('Database "{:s}" does not exist.'.format(dbname))
+        # Get the existing document
+        doc_user = database_users[docid_user]
 
-        # Confirm the role exists
-        if docid_role not in database_roles:
-            raise Exception('role "{:s}" does not exist.'.format(role_name))
+        # Confirm role exists
+        existing_roles = doc_user['roles']
+        if role not in existing_roles:
+            raise Exception('role "{:s}" does not exist.'.format(role))
 
-        # Delete them
-        server.delete(dbname)
-        doc_role = database_roles[docid_role]
-        database_roles.delete(doc_role)
+        # Delete it
+        existing_roles.remove(role)
 
-    def list_roles(self):
-        """ List our roles.
-        """
-        couchdb_roles = self._couchdb_roles
-        couchdb_databases = self._couchdb_databases
+        # get the rev
+        rev = doc_user["_rev"]
 
-        # Keep only roles which have a corresponding database
-        roles = []
-        for role_current in couchdb_roles:
-            # Our databases are defined by the role name plus the suffix '_tractdb'
-            dbname = '{:s}_tractdb'.format(role_current)
+        # Update the user
+        doc_updated_user = {
+            'type': 'user',
+            '_id': docid_user,
+            'name': account,
+            'roles': existing_roles,
+            "_rev": rev
+        }
+        database_users.save(doc_updated_user)
 
-            if dbname in couchdb_databases:
-                roles.append(role_current)
 
-        return roles
 
+    # def list_accounts(self):
+    #     """ List our accounts.
+    #     """
+    #     couchdb_users = self._couchdb_users
+    #     couchdb_databases = self._couchdb_databases
+    #
+    #     # Keep only users who have a corresponding database
+    #     users = []
+    #     for user_current in couchdb_users:
+    #         # Our databases are defined by the user name plus the suffix '_tractdb'
+    #         dbname = '{:s}_tractdb'.format(user_current)
+    #
+    #         if dbname in couchdb_databases:
+    #             users.append(user_current)
+    #
+    #     return users
+    #
     # def reset_password(self, account, account_password):
     #     """ Reset an account password.
     #     """
@@ -154,26 +160,26 @@ class Role(object):
         return dbnames
 
     @property
-    def _couchdb_roles(self):
-        """ List what CouchDB roles exist.
+    def _couchdb_users(self):
+        """ List what CouchDB users exist.
         """
         server = self._couchdb_server
 
         # Directly manipulate users database, since it's not meaningfully wrapped
-        database_roles = server['_roles']
+        database_users = server['_users']
 
         # This is our docid pattern
-        pattern = re.compile('org\.couchdb\.role:(.*)')
+        pattern = re.compile('org\.couchdb\.user:(.*)')
 
         # Keep only the users that match our pattern, extracting the user
-        roles = []
-        for docid in database_roles:
+        users = []
+        for docid in database_users:
             match = pattern.match(docid)
             if match:
-                account_role = match.role(1)
-                roles.append(account_role)
+                account_user = match.group(1)
+                users.append(account_user)
 
-        return roles
+        return users
 
     @property
     def _couchdb_server(self):
