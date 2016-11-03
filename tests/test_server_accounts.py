@@ -11,7 +11,7 @@ def teardown():
     pass
 
 
-class TestTractDBAdmin(unittest.TestCase):
+class TestServerAccounts(unittest.TestCase):
     @property
     def admin(self):
         return tractdb.server.accounts.AccountsAdmin(
@@ -23,6 +23,9 @@ class TestTractDBAdmin(unittest.TestCase):
         )
 
     def test_create_delete_account(self):
+        if 'test-create-account' in self.admin.list_accounts():
+            self.admin.delete_account('test-create-account')
+
         self.assertNotIn(
             'test-create-account',
             self.admin.list_accounts()

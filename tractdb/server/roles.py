@@ -15,44 +15,7 @@ class RolesAdmin(object):
         self._couchdb_admin_password = couchdb_admin_password
 
     def add_role(self, account, role):
-        """ Add a role to a user.
-        """
-        server = self._couchdb_server
-
-        # Directly manipulate users database, since it's not meaningfully wrapped
-        database_users = server['_users']
-        docid_user = 'org.couchdb.user:{:s}'.format(account)
-
-        # Confirm the user does exist
-        if docid_user not in database_users:
-            raise Exception('User "{:s}" not exists.'.format(account))
-
-        # Get the existing document
-        doc_user = database_users[docid_user]
-
-        # Confirm role does not exists
-        existing_roles = doc_user['roles']
-        if role in existing_roles:
-            raise Exception('role "{}" does exist.'.format(role))
-
-        # Add the role to the roles list
-        existing_roles.append(role)
-
-        # get the rev to make sure we are on the right revision
-        rev = doc_user["_rev"]
-
-        # Update the user (type and name are required to update user)
-        doc_updated_user = {
-            'type': 'user',
-            '_id': docid_user,
-            'name': account,
-            'roles': existing_roles,
-            "_rev": rev
-        }
-        database_users.save(doc_updated_user)
-
-    def delete_role(self, account, role):
-        """ Delete a role.
+        """ Add a role to an account.
         """
         server = self._couchdb_server
 
@@ -64,29 +27,60 @@ class RolesAdmin(object):
         if docid_user not in database_users:
             raise Exception('User "{:s}" does not exist.'.format(account))
 
-        # Get the existing document
+        # Get the existing user document
         doc_user = database_users[docid_user]
 
-        # Confirm role exists
-        existing_roles = doc_user['roles']
-        if role not in existing_roles:
-            raise Exception('role "{:s}" does not exist.'.format(role))
+        # Confirm the role does not already exist
+        if role in doc_user['roles']:
+            raise Exception('Role "{:s}" already exists.'.format(role))
 
-        # Delete it from the roles list
-        existing_roles.remove(role)
+        # Add the role and put it back
+        doc_user['roles'].append(role)
+        doc_user['roles'] = sorted(doc_user['roles'])
+        database_users.update([doc_user])
 
-        # get the rev to make sure we are on the right revision
-        rev = doc_user["_rev"]
+    def delete_role(self, account, role):
+        """ Delete a role from an account.
+        """
+        server = self._couchdb_server
 
-        # Update the user (type and name are required to update user)
-        doc_updated_user = {
-            'type': 'user',
-            '_id': docid_user,
-            'name': account,
-            'roles': existing_roles,
-            "_rev": rev
-        }
-        database_users.save(doc_updated_user)
+        # Directly manipulate users database, since it's not meaningfully wrapped
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(account)
+
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(account))
+
+        # Get the existing user document
+        doc_user = database_users[docid_user]
+
+        # Confirm the role exists
+        if role not in doc_user['roles']:
+            raise Exception('Role "{:s}" does not exist.'.format(role))
+
+        # Delete the role and put it back
+        doc_user['roles'].remove(role)
+        database_users.update([doc_user])
+
+    def list_roles(self, account):
+        """ Get the roles of an account.
+        """
+        server = self._couchdb_server
+
+        # Directly manipulate users database, since it's not meaningfully wrapped
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(account)
+
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(account))
+
+        # Get the existing user document
+        doc_user = database_users[docid_user]
+
+        # Return the roles
+        return doc_user['roles']
 
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.

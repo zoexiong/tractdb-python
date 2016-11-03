@@ -120,7 +120,7 @@ class AccountsAdmin(object):
         if docid_user not in database_users:
             raise Exception('User "{:s}" does not exist.'.format(account))
 
-        # Get the existing document
+        # Get the existing user document
         doc_user = database_users[docid_user]
 
         # Change the password and put it back
