@@ -3,6 +3,11 @@ import tractdb.server.accounts
 import unittest
 
 
+TEST_ACCOUNT = 'test-account'
+TEST_ACCOUNT_PASSWORD = 'test-account-password'
+TEST_ROLE = 'test-role'
+
+
 def setup():
     pass
 
@@ -22,31 +27,92 @@ class TestServerAccounts(unittest.TestCase):
             couchdb_admin_password='docker-couchdb-test-admin-password'
         )
 
-    def test_create_delete_account(self):
-        if 'test-create-account' in self.admin.list_accounts():
-            self.admin.delete_account('test-create-account')
+    def setup(self):
+        if TEST_ACCOUNT in self.admin.list_accounts():
+            self.admin.delete_account(TEST_ACCOUNT)
 
+    def teardown(self):
+        if TEST_ACCOUNT in self.admin.list_accounts():
+            self.admin.delete_account(TEST_ACCOUNT)
+
+    def test_create_delete_account(self):
         self.assertNotIn(
-            'test-create-account',
+            TEST_ACCOUNT,
             self.admin.list_accounts()
         )
 
         self.admin.create_account(
-            'test-create-account',
-            'test-create-account-password'
+            TEST_ACCOUNT,
+            TEST_ACCOUNT_PASSWORD
         )
 
         self.assertIn(
-            'test-create-account',
+            TEST_ACCOUNT,
             self.admin.list_accounts()
         )
 
         self.admin.delete_account(
-            'test-create-account'
+            TEST_ACCOUNT
         )
 
         self.assertNotIn(
-            'test-create-account',
+            TEST_ACCOUNT,
+            self.admin.list_accounts()
+        )
+
+    def test_add_delete_role(self):
+        self.assertNotIn(
+            TEST_ACCOUNT,
+            self.admin.list_accounts()
+        )
+
+        self.admin.create_account(
+            TEST_ACCOUNT,
+            TEST_ACCOUNT_PASSWORD
+        )
+
+        self.assertIn(
+            TEST_ACCOUNT,
+            self.admin.list_accounts()
+        )
+
+        self.assertNotIn(
+            TEST_ROLE,
+            self.admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.admin.add_role(
+            TEST_ACCOUNT,
+            TEST_ROLE
+        )
+
+        self.assertIn(
+            TEST_ROLE,
+            self.admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.admin.delete_role(
+            TEST_ACCOUNT,
+            TEST_ROLE
+        )
+
+        self.assertNotIn(
+            TEST_ROLE,
+            self.admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.admin.delete_account(
+            TEST_ACCOUNT
+        )
+
+        self.assertNotIn(
+            TEST_ACCOUNT,
             self.admin.list_accounts()
         )
 
@@ -54,4 +120,19 @@ class TestServerAccounts(unittest.TestCase):
         self.assertIsInstance(
             self.admin.list_accounts(),
             list
+        )
+
+    def test_list_roles(self):
+        self.admin.create_account(
+            TEST_ACCOUNT,
+            TEST_ACCOUNT_PASSWORD
+        )
+
+        self.assertIsInstance(
+            self.admin.list_roles(TEST_ACCOUNT),
+            list
+        )
+
+        self.admin.delete_account(
+            TEST_ACCOUNT
         )
