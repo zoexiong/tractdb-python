@@ -27,11 +27,11 @@ class TestServerAccounts(unittest.TestCase):
             couchdb_admin_password='docker-couchdb-test-admin-password'
         )
 
-    def setup(self):
+    def setUp(self):
         if TEST_ACCOUNT in self.admin.list_accounts():
             self.admin.delete_account(TEST_ACCOUNT)
 
-    def teardown(self):
+    def tearDown(self):
         if TEST_ACCOUNT in self.admin.list_accounts():
             self.admin.delete_account(TEST_ACCOUNT)
 
