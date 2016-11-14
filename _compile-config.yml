@@ -6,12 +6,9 @@ config:
 
       cmd_bash_windows: C:/Program Files/Git/bin/bash
       cmd_dockermachine_windows: C:/Program Files/Docker Toolbox/docker-machine.exe
-<<<<<<< HEAD
 
     node:
       version: 5.1.0
-=======
->>>>>>> b1666f7c108073590eac07b1093611d10210cde6
 
     python:
       version: 3.5
@@ -20,7 +17,6 @@ config:
       #   https://github.com/pyinvoke/invoke/issues/345
       invoke_version: 0.12.2
 
-<<<<<<< HEAD
     ruby:
       version: 2.2.3
       bundler_version: 1.10.6
@@ -30,10 +26,9 @@ config:
       version: 1.11.2-0~trusty
       compose_version: 1.8.0-rc1
       compose_up_delay: 60
-=======
+
   package:
     version: 0.1.7
->>>>>>> b1666f7c108073590eac07b1093611d10210cde6
 
 compile_config:
   entries:
