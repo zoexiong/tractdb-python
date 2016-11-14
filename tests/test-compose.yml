@@ -2,7 +2,7 @@ test_pyramid:
   container_name: test_pyramid
   build: "https://github.com/fogies/docker-pyramid.git"
   environment:
-    GIT_REPOSITORY_SITE: "https://github.com/tractdb/tractdb-pyramid.git"
+    GIT_REPOSITORY_SITE: "https://github.com/zoexiong/tractdb-pyramid.git"
   ports:
     - "8080:8080"
   volumes:
