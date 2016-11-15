@@ -61,61 +61,45 @@ class TestServerAccounts(unittest.TestCase):
         )
 
     def test_add_delete_role(self):
-        pass
-        # self.assertNotIn(
-        #     TEST_ACCOUNT,
-        #     self.admin.list_accounts()
-        # )
-        #
-        # self.admin.create_account(
-        #     TEST_ACCOUNT,
-        #     TEST_ACCOUNT_PASSWORD
-        # )
-        #
-        # self.assertIn(
-        #     TEST_ACCOUNT,
-        #     self.admin.list_accounts()
-        # )
-        #
-        # self.assertNotIn(
-        #     TEST_ROLE,
-        #     self.admin.list_roles(
-        #         TEST_ACCOUNT
-        #     )
-        # )
-        #
-        # self.admin.add_role(
-        #     TEST_ACCOUNT,
-        #     TEST_ROLE
-        # )
-        #
-        # self.assertIn(
-        #     TEST_ROLE,
-        #     self.admin.list_roles(
-        #         TEST_ACCOUNT
-        #     )
-        # )
-        #
-        # self.admin.delete_role(
-        #     TEST_ACCOUNT,
-        #     TEST_ROLE
-        # )
-        #
-        # self.assertNotIn(
-        #     TEST_ROLE,
-        #     self.admin.list_roles(
-        #         TEST_ACCOUNT
-        #     )
-        # )
-        #
-        # self.admin.delete_account(
-        #     TEST_ACCOUNT
-        # )
-        #
-        # self.assertNotIn(
-        #     TEST_ACCOUNT,
-        #     self.admin.list_accounts()
-        # )
+        self.client_admin.create_account(
+            TEST_ACCOUNT,
+            TEST_ACCOUNT_PASSWORD
+        )
+
+        self.assertNotIn(
+            TEST_ROLE,
+            self.client_admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.client_admin.add_role(
+            TEST_ACCOUNT,
+            TEST_ROLE
+        )
+
+        self.assertIn(
+            TEST_ROLE,
+            self.client_admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.client_admin.delete_role(
+            TEST_ACCOUNT,
+            TEST_ROLE
+        )
+
+        self.assertNotIn(
+            TEST_ROLE,
+            self.client_admin.list_roles(
+                TEST_ACCOUNT
+            )
+        )
+
+        self.client_admin.delete_account(
+            TEST_ACCOUNT
+        )
 
     def test_list_accounts(self):
         self.assertIsInstance(
@@ -124,17 +108,16 @@ class TestServerAccounts(unittest.TestCase):
         )
 
     def test_list_roles(self):
-        pass
-        # self.admin.create_account(
-        #     TEST_ACCOUNT,
-        #     TEST_ACCOUNT_PASSWORD
-        # )
-        #
-        # self.assertIsInstance(
-        #     self.admin.list_roles(TEST_ACCOUNT),
-        #     list
-        # )
-        #
-        # self.admin.delete_account(
-        #     TEST_ACCOUNT
-        # )
+        self.client_admin.create_account(
+            TEST_ACCOUNT,
+            TEST_ACCOUNT_PASSWORD
+        )
+
+        self.assertIsInstance(
+            self.client_admin.list_roles(TEST_ACCOUNT),
+            list
+        )
+
+        self.client_admin.delete_account(
+            TEST_ACCOUNT
+        )
