@@ -7,7 +7,8 @@ import unittest
 TEST_ACCOUNT = 'test-account'
 TEST_ACCOUNT_PASSWORD = 'test-account-password'
 TEST_ROLE = 'test-role'
-TEST_DOC = {"user_id": "001", "content":"some content", "date":"03/20/2017"}
+TEST_CONTENT = {"user_id": "001", "text":"some content", "date":"03/20/2017"}
+TEST_UPDATED_CONTENT = {"user_id": "001", "text":"some new content added", "date":"03/20/2017"}
 TEST_DOC_ID = "docid_test"
 
 
@@ -57,7 +58,7 @@ class TestServerDocuments(unittest.TestCase):
         )
 
         self.admin.create_doc(
-            TEST_DOC,
+            TEST_CONTENT,
             TEST_DOC_ID,
             TEST_ACCOUNT
         )
@@ -77,79 +78,66 @@ class TestServerDocuments(unittest.TestCase):
             self.admin.list_documents(TEST_ACCOUNT)
         )
 
-    # def test_add_delete_role(self):
-    #     self.assertNotIn(
-    #         TEST_ACCOUNT,
-    #         self.admin.list_accounts()
-    #     )
-    #
-    #     self.admin.create_account(
-    #         TEST_ACCOUNT,
-    #         TEST_ACCOUNT_PASSWORD
-    #     )
-    #
-    #     self.assertIn(
-    #         TEST_ACCOUNT,
-    #         self.admin.list_accounts()
-    #     )
-    #
-    #     self.assertNotIn(
-    #         TEST_ROLE,
-    #         self.admin.list_roles(
-    #             TEST_ACCOUNT
-    #         )
-    #     )
-    #
-    #     self.admin.add_role(
-    #         TEST_ACCOUNT,
-    #         TEST_ROLE
-    #     )
-    #
-    #     self.assertIn(
-    #         TEST_ROLE,
-    #         self.admin.list_roles(
-    #             TEST_ACCOUNT
-    #         )
-    #     )
-    #
-    #     self.admin.delete_role(
-    #         TEST_ACCOUNT,
-    #         TEST_ROLE
-    #     )
-    #
-    #     self.assertNotIn(
-    #         TEST_ROLE,
-    #         self.admin.list_roles(
-    #             TEST_ACCOUNT
-    #         )
-    #     )
-    #
-    #     self.admin.delete_account(
-    #         TEST_ACCOUNT
-    #     )
-    #
-    #     self.assertNotIn(
-    #         TEST_ACCOUNT,
-    #         self.admin.list_accounts()
-    #     )
-    #
-    # def test_list_accounts(self):
-    #     self.assertIsInstance(
-    #         self.admin.list_accounts(),
-    #         list
-    #     )
-    #
-    # def test_list_roles(self):
-    #     self.admin.create_account(
-    #         TEST_ACCOUNT,
-    #         TEST_ACCOUNT_PASSWORD
-    #     )
-    #
-    #     self.assertIsInstance(
-    #         self.admin.list_roles(TEST_ACCOUNT),
-    #         list
-    #     )
-    #
-    #     self.admin.delete_account(
-    #         TEST_ACCOUNT
-    #     )
+    def test_update_read_document(self):
+        # Ensure the doc exists
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.admin.list_documents(TEST_ACCOUNT)
+        )
+
+        self.admin.create_doc(
+            TEST_CONTENT,
+            TEST_DOC_ID,
+            TEST_ACCOUNT
+        )
+
+        self.assertIn(
+            TEST_DOC_ID,
+            self.admin.list_documents(TEST_ACCOUNT)
+        )
+
+        # Read the doc
+        doc = self.admin.read_doc(
+            TEST_DOC_ID,
+            TEST_ACCOUNT
+        )
+
+        # Ensure we get the right content
+        self.assertEquals(
+            doc['content'],
+            TEST_CONTENT
+        )
+
+        # Update the doc
+        self.admin.update_doc(TEST_UPDATED_CONTENT, TEST_DOC_ID, TEST_ACCOUNT)
+
+        # Ensure the doc is updated, get the new content
+        doc_updated = self.admin.read_doc(
+            TEST_DOC_ID,
+            TEST_ACCOUNT
+        )
+
+        self.assertEquals(
+            doc_updated['content'],
+            TEST_UPDATED_CONTENT
+        )
+
+        # Delete the doc
+        self.admin.delete_doc(
+            TEST_DOC_ID,
+            TEST_ACCOUNT
+        )
+
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.admin.list_documents(TEST_ACCOUNT)
+        )
+
+    def test_list_documents(self):
+        self.assertIsInstance(
+            self.admin.list_documents(TEST_ACCOUNT),
+            list
+        )
+
+
+

@@ -14,7 +14,7 @@ class DocumentsAdmin(object):
         self._couchdb_admin = couchdb_admin
         self._couchdb_admin_password = couchdb_admin_password
 
-    def create_doc(self, doc, doc_id, account):
+    def create_doc(self, content, doc_id, account):
         """ Add a doc to a database.
         """
         server = self._couchdb_server
@@ -33,7 +33,10 @@ class DocumentsAdmin(object):
         # Get the database for the user
         database = server[dbname]
         # Set id for the doc
+        doc = {}
+        doc['content'] = content
         doc['_id'] = doc_id
+
         # Create and save the doc
         database.save(doc)
 
@@ -61,7 +64,7 @@ class DocumentsAdmin(object):
 
         return doc
 
-    def update_doc(self, updated_doc, doc_id, account):
+    def update_doc(self, updated_content, doc_id, account):
         """ Update a doc.
         """
         server = self._couchdb_server
@@ -83,10 +86,11 @@ class DocumentsAdmin(object):
         if doc_id not in database:
             raise Exception('Document "{:s}" does not exist.'.format(doc_id))
 
-        # Add doc id to the doc in case doc id is not included in the uploaded doc file
-        updated_doc['_id'] = doc_id
+        # Update content
+        doc = database[doc_id]
+        doc['content'] = updated_content
 
-        database.update([updated_doc])
+        database.update([doc])
 
     def delete_doc(self, doc_id, account):
         """ Delete a doc.
