@@ -33,7 +33,7 @@ class DocumentsAdmin(object):
         # Get the database for the user
         database = server[dbname]
         # Set id for the doc
-        doc.id = doc_id
+        doc['_id'] = doc_id
         # Create and save the doc
         database.save(doc)
 
@@ -84,7 +84,7 @@ class DocumentsAdmin(object):
             raise Exception('Document "{:s}" does not exist.'.format(doc_id))
 
         # Add doc id to the doc in case doc id is not included in the uploaded doc file
-        updated_doc.id = doc_id
+        updated_doc['_id'] = doc_id
 
         database.update([updated_doc])
 
@@ -113,6 +113,25 @@ class DocumentsAdmin(object):
         # Delete it
         doc = database[doc_id]
         database.delete(doc)
+
+    def list_documents(self, account):
+        """ List the id of all the documents of the given account.
+        """
+        server = self._couchdb_server
+        dbname = '{:s}_tractdb'.format(account)
+
+        # Confirm the database exists
+        if dbname not in server:
+            raise Exception('Database "{:s}" does not exist.'.format(dbname))
+
+        database = server[dbname]
+
+        # Keep only users who have a corresponding database
+        docs_id = []
+        for doc in database:
+            docs_id.append(doc)
+
+        return docs_id
 
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
