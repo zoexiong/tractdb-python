@@ -1,4 +1,0 @@
-baseurl:    ''
-
-tractdb:
-  baseurl_pyramid: http://{{ DOCKER_LOCALIZE_IP }}:8080
