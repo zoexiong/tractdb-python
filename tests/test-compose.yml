@@ -8,6 +8,7 @@ test_pyramid:
   volumes:
     - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-config/pyramid_config.ini:/docker-pyramid-site/pyramid_config.production.ini:ro"
     - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-pyramid-site/couchdb_secrets.yml:ro"
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/pyramid_secrets.yml:/docker-pyramid-site/pyramid_secrets.yml:ro"
   links:
     - test_couchdb
 
