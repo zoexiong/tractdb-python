@@ -7,24 +7,24 @@ class DocumentsAdmin(object):
     """ Supports management of TractDB documents.
     """
 
-    def __init__(self, couchdb_url, couchdb_admin, couchdb_admin_password):
+    def __init__(self, couchdb_url, couchdb_user, couchdb_user_password):
         """ Create an admin object.
         """
         self._couchdb_url = couchdb_url
-        self._couchdb_admin = couchdb_admin
-        self._couchdb_admin_password = couchdb_admin_password
+        self._couchdb_user = couchdb_user
+        self._couchdb_user_password = couchdb_user_password
 
-    def create_doc(self, content, doc_id, account):
-        """ Add a doc to a database.
+    def create_document(self, doc, doc_id=None):
+        """ Add a document to a database.
         """
         server = self._couchdb_server
         database_users = server['_users']
-        docid_user = 'org.couchdb.user:{:s}'.format(account)
-        dbname = '{:s}_tractdb'.format(account)
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
 
         # Confirm the user exists
         if docid_user not in database_users:
-            raise Exception('User "{:s}" does not exist.'.format(account))
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
 
         # Confirm the database exists
         if dbname not in server:
@@ -32,23 +32,29 @@ class DocumentsAdmin(object):
 
         # Get the database for the user
         database = server[dbname]
-        # Set id for the doc
-        doc = {}
-        doc['content'] = content
-        doc['_id'] = doc_id
 
-        # Create and save the doc
-        database.save(doc)
+        # Set id for the document
+        doc = dict(doc)
+        if doc_id:
+            doc['_id'] = doc_id
 
-    def read_doc(self, doc_id, account):
+        # Store the document
+        created_id, created_rev = database.save(doc)
+
+        doc['_id'] = created_id
+        doc['_rev'] = created_rev
+
+        return doc
+
+    def get_document(self, doc_id):
         server = self._couchdb_server
         database_users = server['_users']
-        docid_user = 'org.couchdb.user:{:s}'.format(account)
-        dbname = '{:s}_tractdb'.format(account)
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
 
         # Confirm the user exists
         if docid_user not in database_users:
-            raise Exception('User "{:s}" does not exist.'.format(account))
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
 
         # Confirm the database exists
         if dbname not in server:
@@ -62,19 +68,20 @@ class DocumentsAdmin(object):
 
         doc = database[doc_id]
 
-        return doc
+        # Return as a dict, not our couchdb internal object
+        return dict(doc)
 
-    def update_doc(self, updated_content, doc_id, account):
+    def update_document(self, doc):
         """ Update a doc.
         """
         server = self._couchdb_server
         database_users = server['_users']
-        docid_user = 'org.couchdb.user:{:s}'.format(account)
-        dbname = '{:s}_tractdb'.format(account)
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
 
         # Confirm the user exists
         if docid_user not in database_users:
-            raise Exception('User "{:s}" does not exist.'.format(account))
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
 
         # Confirm the database exists
         if dbname not in server:
@@ -82,27 +89,20 @@ class DocumentsAdmin(object):
 
         database = server[dbname]
 
-        # Confirm the document exists
-        if doc_id not in database:
-            raise Exception('Document "{:s}" does not exist.'.format(doc_id))
-
-        # Update content
-        doc = database[doc_id]
-        doc['content'] = updated_content
-
+        # Update the document
         database.update([doc])
 
-    def delete_doc(self, doc_id, account):
+    def delete_document(self, doc_id):
         """ Delete a doc.
         """
         server = self._couchdb_server
         database_users = server['_users']
-        docid_user = 'org.couchdb.user:{:s}'.format(account)
-        dbname = '{:s}_tractdb'.format(account)
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
 
         # Confirm the user exists
         if docid_user not in database_users:
-            raise Exception('User "{:s}" does not exist.'.format(account))
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
 
         # Confirm the database exists
         if dbname not in server:
@@ -115,14 +115,19 @@ class DocumentsAdmin(object):
             raise Exception('Document "{:s}" does not exist.'.format(doc_id))
 
         # Delete it
-        doc = database[doc_id]
-        database.delete(doc)
+        del database[doc_id]
 
-    def list_documents(self, account):
+    def list_documents(self):
         """ List the id of all the documents of the given account.
         """
         server = self._couchdb_server
-        dbname = '{:s}_tractdb'.format(account)
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
+
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
 
         # Confirm the database exists
         if dbname not in server:
@@ -130,20 +135,16 @@ class DocumentsAdmin(object):
 
         database = server[dbname]
 
-        # Keep only users who have a corresponding database
-        docs_id = []
-        for doc in database:
-            docs_id.append(doc)
-
-        return docs_id
+        # Return all document ids
+        return [doc for doc in database]
 
     def _format_server_url(self):
         """ Format the base URL we use for connecting to the server.
         """
         return '{}://{:s}:{:s}@{:s}'.format(
             urllib.parse.urlparse(self._couchdb_url).scheme,
-            self._couchdb_admin,
-            self._couchdb_admin_password,
+            self._couchdb_user,
+            self._couchdb_user_password,
             self._couchdb_url[
                 len(urllib.parse.urlparse(self._couchdb_url).scheme) + len('://')
                 :
