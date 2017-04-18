@@ -85,7 +85,7 @@ class TestServerDocuments(unittest.TestCase):
             dict
         )
 
-        # Remove the internal fields for comparisont
+        # Remove the internal fields for comparison
         del doc['_id']
         del doc['_rev']
 
@@ -129,9 +129,9 @@ class TestServerDocuments(unittest.TestCase):
         except couchdb.http.ResourceConflict:
             self.assertTrue(couchdb.http.ResourceConflict)
 
-            # raise exception if no exception is raised due to conflicts
+            # raise an exception if no exception is raised due to conflicts
         else:
-            self.fail('Expected exception not raised')
+            self.fail('Expected exception not raised, no conflict detected')
 
     def test_create_document_id_known(self):
         # create a document by assigning an _id, see that couch does use that _id
@@ -258,7 +258,6 @@ class TestServerDocuments(unittest.TestCase):
             TEST_CONTENT,
             TEST_DOC_ID
         )
-
         doc_id = doc['_id']
 
         # Confirm created
@@ -295,7 +294,7 @@ class TestServerDocuments(unittest.TestCase):
             TEST_UPDATED_CONTENT
         )
 
-        # Create another updated document
+        # Create another updated document from the origin doc with invalid rev
         doc_updated_again = dict(doc)
         doc_updated_again.update(TEST_UPDATED_AGAIN_CONTENT)
 
@@ -310,5 +309,5 @@ class TestServerDocuments(unittest.TestCase):
 
             # raise an exception if there is no exception raised by conflict
         else:
-            self.fail('Expected exception not raised')
+            self.fail('Expected exception not raised, no conflict detected')
 
