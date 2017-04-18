@@ -90,7 +90,15 @@ class DocumentsAdmin(object):
         database = server[dbname]
 
         # Update the document
-        database.update([doc])
+        result = database.update([doc])
+
+        # if update failed, raise an exception and show the error message
+        # the format of result is (success(boolean), docid, rev_or_exc)
+        if not (result[0][0]):
+            # raise Exception(result[0][2])
+            raise couchdb.http.ResourceConflict
+
+        return result
 
     def delete_document(self, doc_id):
         """ Delete a doc.

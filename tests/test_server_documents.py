@@ -18,6 +18,11 @@ TEST_UPDATED_CONTENT = {
     'text': 'some new content added',
     'date': '03/20/2017'
 }
+TEST_UPDATED_AGAIN_CONTENT = {
+    'user_id': '001',
+    'text': 'some newest content added',
+    'date': '03/20/2017'
+}
 
 
 def setup():
@@ -57,188 +62,188 @@ class TestServerDocuments(unittest.TestCase):
         if TEST_ACCOUNT in self.accountAdmin.list_accounts():
             self.accountAdmin.delete_account(TEST_ACCOUNT)
 
-    # def test_create_get_delete_document(self):
-    #     self.assertNotIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     self.documentAdmin.create_document(
-    #         TEST_CONTENT,
-    #         TEST_DOC_ID
-    #     )
-    #
-    #     self.assertIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     doc = self.documentAdmin.get_document(TEST_DOC_ID)
-    #
-    #     self.assertIsInstance(
-    #         doc,
-    #         dict
-    #     )
-    #
-    #     # Remove the internal fields for comparisont
-    #     del doc['_id']
-    #     del doc['_rev']
-    #
-    #     self.assertEqual(
-    #         doc,
-    #         TEST_CONTENT
-    #     )
-    #
-    #     self.documentAdmin.delete_document(
-    #         TEST_DOC_ID
-    #     )
-    #
-    #     self.assertNotIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
+    def test_create_get_delete_document(self):
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
+
+        self.assertIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        doc = self.documentAdmin.get_document(TEST_DOC_ID)
+
+        self.assertIsInstance(
+            doc,
+            dict
+        )
+
+        # Remove the internal fields for comparisont
+        del doc['_id']
+        del doc['_rev']
+
+        self.assertEqual(
+            doc,
+            TEST_CONTENT
+        )
+
+        self.documentAdmin.delete_document(
+            TEST_DOC_ID
+        )
+
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
 
     # create a document with an _id that already exists, see that fails
-    # def test_create_document_id_conflict(self):
-    #     self.assertNotIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     self.documentAdmin.create_document(
-    #         TEST_CONTENT,
-    #         TEST_DOC_ID
-    #     )
-    #
-    #     self.assertIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     try:
-    #         self.documentAdmin.create_document(
-    #             TEST_CONTENT,
-    #             TEST_DOC_ID
-    #         )
-    #
-    #     except couchdb.http.ResourceConflict:
-    #         self.assertTrue(couchdb.http.ResourceConflict)
-    #
-    #         # raise exception if no exception is raised due to conflicts
-    #     else:
-    #         self.fail('Expected exception not raised')
+    def test_create_document_id_conflict(self):
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
 
-    # def test_create_document_id_known(self):
-    #     # create a document by assigning an _id, see that couch does use that _id
-    #     self.assertNotIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     doc = self.documentAdmin.create_document(
-    #         TEST_CONTENT,
-    #         TEST_DOC_ID
-    #     )
-    #
-    #     id = doc['_id']
-    #
-    #     self.assertIn(
-    #         TEST_DOC_ID,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     self.assertEquals(TEST_DOC_ID,id)
+        self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
+
+        self.assertIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        try:
+            self.documentAdmin.create_document(
+                TEST_CONTENT,
+                TEST_DOC_ID
+            )
+
+        except couchdb.http.ResourceConflict:
+            self.assertTrue(couchdb.http.ResourceConflict)
+
+            # raise exception if no exception is raised due to conflicts
+        else:
+            self.fail('Expected exception not raised')
+
+    def test_create_document_id_known(self):
+        # create a document by assigning an _id, see that couch does use that _id
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
+
+        id = doc['_id']
+
+        self.assertIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        self.assertEquals(TEST_DOC_ID,id)
 
 
-    # def test_create_document_id_unknown(self):
-    #     # create a document without assigning it an _id, see that couch assigns one
-    #     doc = self.documentAdmin.create_document(
-    #         TEST_CONTENT
-    #     )
-    #
-    #     assigned_id = doc['_id']
-    #
-    #     self.assertIn(
-    #         assigned_id,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     # to see if the assigned id is string
-    #     self.assertIsInstance(
-    #         assigned_id,
-    #         str
-    #     )
-    #
-    #     # the length of the assigned id should > 0
-    #     self.assertTrue(len(assigned_id) > 0)
+    def test_create_document_id_unknown(self):
+        # create a document without assigning it an _id, see that couch assigns one
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT
+        )
 
-    # def test_create_get_update_get_document(self):
-    #     # Create it
-    #     doc = self.documentAdmin.create_document(
-    #         TEST_CONTENT
-    #     )
-    #     doc_id = doc['_id']
-    #
-    #     # Confirm created
-    #     self.assertIn(
-    #         doc_id,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    #     # Read it
-    #     doc = self.documentAdmin.get_document(
-    #         doc_id
-    #     )
-    #
-    #     # Create an updated document
-    #     doc_updated = dict(doc)
-    #     doc_updated.update(TEST_UPDATED_CONTENT)
-    #
-    #     # Remove the internal fields for comparison
-    #     del doc['_id']
-    #     del doc['_rev']
-    #
-    #     # Ensure we get the right content
-    #     self.assertEquals(
-    #         doc,
-    #         TEST_CONTENT
-    #     )
-    #
-    #     # Update it
-    #     self.documentAdmin.update_document(
-    #         doc_updated
-    #     )
-    #
-    #     # Ensure we get the new content
-    #     doc_updated = self.documentAdmin.get_document(
-    #         doc_id
-    #     )
-    #
-    #     # Remove the internal fields for comparison
-    #     del doc_updated['_id']
-    #     del doc_updated['_rev']
-    #
-    #     self.assertEquals(
-    #         doc_updated,
-    #         TEST_UPDATED_CONTENT
-    #     )
-    #
-    #     # Delete it
-    #     self.documentAdmin.delete_document(
-    #         doc_id
-    #     )
-    #
-    #     # Ensure it's gone
-    #     self.assertNotIn(
-    #         doc_id,
-    #         self.documentAdmin.list_documents()
-    #     )
-    #
-    # def test_list_documents(self):
-    #     self.assertIsInstance(
-    #         self.documentAdmin.list_documents(),
-    #         list
-    #     )
+        assigned_id = doc['_id']
+
+        self.assertIn(
+            assigned_id,
+            self.documentAdmin.list_documents()
+        )
+
+        # to see if the assigned id is string
+        self.assertIsInstance(
+            assigned_id,
+            str
+        )
+
+        # the length of the assigned id should > 0
+        self.assertTrue(len(assigned_id) > 0)
+
+    def test_create_get_update_get_document(self):
+        # Create it
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT
+        )
+        doc_id = doc['_id']
+
+        # Confirm created
+        self.assertIn(
+            doc_id,
+            self.documentAdmin.list_documents()
+        )
+
+        # Read it
+        doc = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Create an updated document
+        doc_updated = dict(doc)
+        doc_updated.update(TEST_UPDATED_CONTENT)
+
+        # Remove the internal fields for comparison
+        del doc['_id']
+        del doc['_rev']
+
+        # Ensure we get the right content
+        self.assertEquals(
+            doc,
+            TEST_CONTENT
+        )
+
+        # Update it
+        self.documentAdmin.update_document(
+            doc_updated
+        )
+
+        # Ensure we get the new content
+        doc_updated = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Remove the internal fields for comparison
+        del doc_updated['_id']
+        del doc_updated['_rev']
+
+        self.assertEquals(
+            doc_updated,
+            TEST_UPDATED_CONTENT
+        )
+
+        # Delete it
+        self.documentAdmin.delete_document(
+            doc_id
+        )
+
+        # Ensure it's gone
+        self.assertNotIn(
+            doc_id,
+            self.documentAdmin.list_documents()
+        )
+
+    def test_list_documents(self):
+        self.assertIsInstance(
+            self.documentAdmin.list_documents(),
+            list
+        )
 
     def test_update_document_conflict(self):
         # update a document, create a conflict error, confirm that happens
@@ -247,4 +252,63 @@ class TestServerDocuments(unittest.TestCase):
         #  - copy that document (so you keep the _rev)
         #  - modify and update the document (this should succeed and give you a new _rev)
         #  - using a the copy, modify and update again (this should fail, the _rev doesn't match anymore)
-        self.assertTrue(False)
+
+        # Create it
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
+
+        doc_id = doc['_id']
+
+        # Confirm created
+        self.assertIn(
+            doc_id,
+            self.documentAdmin.list_documents()
+        )
+
+        # Read it
+        doc = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Create an updated document
+        doc_updated = dict(doc)
+        doc_updated.update(TEST_UPDATED_CONTENT)
+
+        # Update it
+        self.documentAdmin.update_document(
+            doc_updated
+        )
+
+        # Ensure we get the new content
+        doc_updated = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Remove the internal fields for comparison
+        del doc_updated['_id']
+        del doc_updated['_rev']
+
+        self.assertEquals(
+            doc_updated,
+            TEST_UPDATED_CONTENT
+        )
+
+        # Create another updated document
+        doc_updated_again = dict(doc)
+        doc_updated_again.update(TEST_UPDATED_AGAIN_CONTENT)
+
+        try:
+            # Update it
+            self.documentAdmin.update_document(
+                doc_updated_again
+            )
+
+        except couchdb.http.ResourceConflict:
+            self.assertTrue(couchdb.http.ResourceConflict)
+
+            # raise an exception if there is no exception raised by conflict
+        else:
+            self.fail('Expected exception not raised')
+
