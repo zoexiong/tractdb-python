@@ -2,6 +2,7 @@ import tests.docker_base as docker_base
 import tractdb.server.accounts
 import tractdb.server.documents
 import unittest
+import couchdb
 
 
 TEST_ACCOUNT = 'test-account'
@@ -15,6 +16,11 @@ TEST_CONTENT = {
 TEST_UPDATED_CONTENT = {
     'user_id': '001',
     'text': 'some new content added',
+    'date': '03/20/2017'
+}
+TEST_UPDATED_AGAIN_CONTENT = {
+    'user_id': '001',
+    'text': 'some newest content added',
     'date': '03/20/2017'
 }
 
@@ -97,17 +103,80 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-    # def test_create_document_id_conflict(self):
-    #     #     # create a document with an _id that already exists, see that fails
-    #     self.assertTrue(False)
+    def test_create_document_id_conflict(self):
+        # create a document with an _id that already exists, confirm the attempted duplication fails
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
 
-    # def test_create_document_id_known(self):
-    #     # create a document by assigning an _id, see that couch does use that _id
-    #     self.assertTrue(False)
+        self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
 
-    # def test_create_document_id_unknown(self):
-    #     # create a document without assigning it an _id, see that couch assigns one
-    #     self.assertTrue(False)
+        self.assertIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        with self.assertRaises(Exception):
+            self.documentAdmin.create_document(
+                TEST_CONTENT,
+                TEST_DOC_ID
+            )
+
+        self.documentAdmin.delete_document(
+            TEST_DOC_ID
+        )
+
+    def test_create_document_id_known(self):
+        # create a document by assigning an _id, see that couch does use that _id
+        self.assertNotIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT,
+            doc_id=TEST_DOC_ID
+        )
+
+        self.assertEquals(
+            TEST_DOC_ID,
+            doc['_id']
+        )
+
+        self.assertIn(
+            TEST_DOC_ID,
+            self.documentAdmin.list_documents()
+        )
+
+        self.documentAdmin.delete_document(
+            TEST_DOC_ID
+        )
+
+    def test_create_document_id_unknown(self):
+        # create a document without assigning it an _id, see that couch assigns one
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT
+        )
+
+        assigned_id = doc['_id']
+
+        self.assertIn(
+            assigned_id,
+            self.documentAdmin.list_documents()
+        )
+
+        self.documentAdmin.delete_document(
+            assigned_id
+        )
+
+        self.assertNotIn(
+            assigned_id,
+            self.documentAdmin.list_documents()
+        )
 
     def test_create_get_update_get_document(self):
         # Create it
@@ -177,11 +246,66 @@ class TestServerDocuments(unittest.TestCase):
             list
         )
 
-    # def test_update_document_conflict(self):
-    #     # update a document, create a conflict error, confirm that happens
-    #     # this will require
-    #     #  - make a document, it has an _id and a _rev
-    #     #  - copy that document (so you keep the _rev)
-    #     #  - modify and update the document (this should succeed and give you a new _rev)
-    #     #  - using a the copy, modify and update again (this should fail, the _rev doesn't match anymore)
-    #     self.assertTrue(False)
+    def test_update_document_conflict(self):
+        # update a document, create a conflict error, confirm that happens
+        # this will require
+        #  - make a document, it has an _id and a _rev
+        #  - copy that document (so you keep the _rev)
+        #  - modify and update the document (this should succeed and give you a new _rev)
+        #  - using a the copy, modify and update again (this should fail, the _rev doesn't match anymore)
+
+        # Create it
+        doc = self.documentAdmin.create_document(
+            TEST_CONTENT,
+            TEST_DOC_ID
+        )
+        doc_id = doc['_id']
+
+        # Confirm created
+        self.assertIn(
+            doc_id,
+            self.documentAdmin.list_documents()
+        )
+
+        # Read it
+        doc = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Create an updated document
+        doc_updated = dict(doc)
+        doc_updated.update(TEST_UPDATED_CONTENT)
+
+        # Update it
+        self.documentAdmin.update_document(
+            doc_updated
+        )
+
+        # Ensure we get the new content
+        doc_updated = self.documentAdmin.get_document(
+            doc_id
+        )
+
+        # Remove the internal fields for comparison
+        del doc_updated['_id']
+        del doc_updated['_rev']
+
+        self.assertEquals(
+            doc_updated,
+            TEST_UPDATED_CONTENT
+        )
+
+        # Create another updated document from the origin doc with invalid rev
+        doc_updated_again = dict(doc)
+        doc_updated_again.update(TEST_UPDATED_AGAIN_CONTENT)
+
+        with self.assertRaises(Exception):
+            # Update it
+            self.documentAdmin.update_document(
+                doc_updated_again
+            )
+
+        # Delete it
+        self.documentAdmin.delete_document(
+            doc_id
+        )
