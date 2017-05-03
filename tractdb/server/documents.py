@@ -90,13 +90,10 @@ class DocumentsAdmin(object):
         database = server[dbname]
 
         # Update the document
-        result = database.update([doc])
-
-        # if update failed, raise an exception and show the error message
-        # the format of result is (success(boolean), docid, rev_or_exc)
-        if not (result[0][0]):
-            # raise Exception(result[0][2])
-            raise couchdb.http.ResourceConflict
+        try:
+            result = database.save(doc)
+        except couchdb.http.ResourceConflict:
+            raise Exception('Document "{:s} was modified.'.format(doc['_id']))
 
         return result
 

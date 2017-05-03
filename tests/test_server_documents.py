@@ -103,8 +103,8 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-    # create a document with an _id that already exists, see that fails
     def test_create_document_id_conflict(self):
+        # create a document with an _id that already exists, confirm the attempted duplication fails
         self.assertNotIn(
             TEST_DOC_ID,
             self.documentAdmin.list_documents()
@@ -120,18 +120,15 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        try:
+        with self.assertRaises(Exception):
             self.documentAdmin.create_document(
                 TEST_CONTENT,
                 TEST_DOC_ID
             )
 
-        except couchdb.http.ResourceConflict:
-            self.assertTrue(couchdb.http.ResourceConflict)
-
-            # raise an exception if no exception is raised due to conflicts
-        else:
-            self.fail('Expected exception not raised, no conflict detected')
+        self.documentAdmin.delete_document(
+            TEST_DOC_ID
+        )
 
     def test_create_document_id_known(self):
         # create a document by assigning an _id, see that couch does use that _id
@@ -142,18 +139,22 @@ class TestServerDocuments(unittest.TestCase):
 
         doc = self.documentAdmin.create_document(
             TEST_CONTENT,
-            TEST_DOC_ID
+            doc_id=TEST_DOC_ID
         )
 
-        id = doc['_id']
+        self.assertEquals(
+            TEST_DOC_ID,
+            doc['_id']
+        )
 
         self.assertIn(
             TEST_DOC_ID,
             self.documentAdmin.list_documents()
         )
 
-        self.assertEquals(TEST_DOC_ID,id)
-
+        self.documentAdmin.delete_document(
+            TEST_DOC_ID
+        )
 
     def test_create_document_id_unknown(self):
         # create a document without assigning it an _id, see that couch assigns one
@@ -168,14 +169,14 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        # to see if the assigned id is string
-        self.assertIsInstance(
-            assigned_id,
-            str
+        self.documentAdmin.delete_document(
+            assigned_id
         )
 
-        # the length of the assigned id should > 0
-        self.assertTrue(len(assigned_id) > 0)
+        self.assertNotIn(
+            assigned_id,
+            self.documentAdmin.list_documents()
+        )
 
     def test_create_get_update_get_document(self):
         # Create it
@@ -298,16 +299,13 @@ class TestServerDocuments(unittest.TestCase):
         doc_updated_again = dict(doc)
         doc_updated_again.update(TEST_UPDATED_AGAIN_CONTENT)
 
-        try:
+        with self.assertRaises(Exception):
             # Update it
             self.documentAdmin.update_document(
                 doc_updated_again
             )
 
-        except couchdb.http.ResourceConflict:
-            self.assertTrue(couchdb.http.ResourceConflict)
-
-            # raise an exception if there is no exception raised by conflict
-        else:
-            self.fail('Expected exception not raised, no conflict detected')
-
+        # Delete it
+        self.documentAdmin.delete_document(
+            doc_id
+        )
