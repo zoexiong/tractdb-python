@@ -45,6 +45,25 @@ class DocumentsAdmin(object):
 
         return created_id
 
+    def exists_document(self, doc_id):
+        server = self._couchdb_server
+        database_users = server['_users']
+        docid_user = 'org.couchdb.user:{:s}'.format(self._couchdb_user)
+        dbname = '{:s}_tractdb'.format(self._couchdb_user)
+
+        # Confirm the user exists
+        if docid_user not in database_users:
+            raise Exception('User "{:s}" does not exist.'.format(self._couchdb_user))
+
+        # Confirm the database exists
+        if dbname not in server:
+            raise Exception('Database "{:s}" does not exist.'.format(dbname))
+
+        database = server[dbname]
+
+        # Check whether the document exists
+        return doc_id in database
+
     def get_document(self, doc_id):
         server = self._couchdb_server
         database_users = server['_users']

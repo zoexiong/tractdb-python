@@ -67,6 +67,10 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
+        self.assertFalse(
+            self.documentAdmin.exists_document(TEST_DOC_ID)
+        )
+
         doc_id = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
@@ -76,6 +80,10 @@ class TestServerDocuments(unittest.TestCase):
         self.assertIn(
             doc_id,
             self.documentAdmin.list_documents()
+        )
+
+        self.assertTrue(
+            self.documentAdmin.exists_document(TEST_DOC_ID)
         )
 
         doc = self.documentAdmin.get_document(doc_id)
@@ -101,6 +109,10 @@ class TestServerDocuments(unittest.TestCase):
         self.assertNotIn(
             doc_id,
             self.documentAdmin.list_documents()
+        )
+
+        self.assertFalse(
+            self.documentAdmin.exists_document(TEST_DOC_ID)
         )
 
     def test_create_document_id_conflict(self):
