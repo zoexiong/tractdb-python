@@ -2,7 +2,6 @@ import tests.docker_base as docker_base
 import tractdb.server.accounts
 import tractdb.server.documents
 import unittest
-import couchdb
 
 
 TEST_ACCOUNT = 'test-account'
@@ -68,17 +67,18 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
+        self.assertEquals(doc_id, TEST_DOC_ID)
 
         self.assertIn(
-            TEST_DOC_ID,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
-        doc = self.documentAdmin.get_document(TEST_DOC_ID)
+        doc = self.documentAdmin.get_document(doc_id)
 
         self.assertIsInstance(
             doc,
@@ -95,11 +95,11 @@ class TestServerDocuments(unittest.TestCase):
         )
 
         self.documentAdmin.delete_document(
-            TEST_DOC_ID
+            doc_id
         )
 
         self.assertNotIn(
-            TEST_DOC_ID,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
@@ -110,13 +110,13 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
 
         self.assertIn(
-            TEST_DOC_ID,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
@@ -127,7 +127,7 @@ class TestServerDocuments(unittest.TestCase):
             )
 
         self.documentAdmin.delete_document(
-            TEST_DOC_ID
+            doc_id
         )
 
     def test_create_document_id_known(self):
@@ -137,53 +137,50 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        doc = self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT,
             doc_id=TEST_DOC_ID
         )
 
         self.assertEquals(
-            TEST_DOC_ID,
-            doc['_id']
+            doc_id,
+            TEST_DOC_ID
         )
 
         self.assertIn(
-            TEST_DOC_ID,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
         self.documentAdmin.delete_document(
-            TEST_DOC_ID
+            doc_id
         )
 
     def test_create_document_id_unknown(self):
         # create a document without assigning it an _id, see that couch assigns one
-        doc = self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT
         )
 
-        assigned_id = doc['_id']
-
         self.assertIn(
-            assigned_id,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
         self.documentAdmin.delete_document(
-            assigned_id
+            doc_id
         )
 
         self.assertNotIn(
-            assigned_id,
+            doc_id,
             self.documentAdmin.list_documents()
         )
 
     def test_create_get_update_get_document(self):
         # Create it
-        doc = self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT
         )
-        doc_id = doc['_id']
 
         # Confirm created
         self.assertIn(
@@ -255,11 +252,10 @@ class TestServerDocuments(unittest.TestCase):
         #  - using a the copy, modify and update again (this should fail, the _rev doesn't match anymore)
 
         # Create it
-        doc = self.documentAdmin.create_document(
+        doc_id = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
-        doc_id = doc['_id']
 
         # Confirm created
         self.assertIn(

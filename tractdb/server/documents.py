@@ -33,18 +33,17 @@ class DocumentsAdmin(object):
         # Get the database for the user
         database = server[dbname]
 
-        # Set id for the document
+        # Ensure we have 'just' a dictionary
         doc = dict(doc)
+
+        # If we were told what id to use, use it
         if doc_id:
             doc['_id'] = doc_id
 
         # Store the document
         created_id, created_rev = database.save(doc)
 
-        doc['_id'] = created_id
-        doc['_rev'] = created_rev
-
-        return doc
+        return created_id
 
     def get_document(self, doc_id):
         server = self._couchdb_server
@@ -68,7 +67,7 @@ class DocumentsAdmin(object):
 
         doc = database[doc_id]
 
-        # Return as a dict, not our couchdb internal object
+        # Return as a dict, not our CouchDB internal object
         return dict(doc)
 
     def update_document(self, doc):
