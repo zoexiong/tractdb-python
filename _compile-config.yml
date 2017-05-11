@@ -21,7 +21,7 @@ config:
       invoke_version: 0.12.2
 
   package:
-    version: 0.1.9
+    version: 0.1.10
 
 compile_config:
   entries:
