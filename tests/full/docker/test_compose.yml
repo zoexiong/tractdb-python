@@ -1,3 +1,11 @@
+test_couchdb:
+  container_name: test_couchdb
+  build: "https://github.com/fogies/docker-couchdb.git"
+  ports:
+    - "5984:5984"
+  volumes:
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-couchdb-secrets/secrets.yml:ro"
+
 test_pyramid:
   container_name: test_pyramid
   build: "https://github.com/fogies/docker-pyramid.git"
@@ -11,11 +19,3 @@ test_pyramid:
     - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/pyramid_secrets.yml:/docker-pyramid-site/pyramid_secrets.yml:ro"
   links:
     - test_couchdb
-
-test_couchdb:
-  container_name: test_couchdb
-  build: "https://github.com/fogies/docker-couchdb.git"
-  ports:
-    - "5984:5984"
-  volumes:
-    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-couchdb-secrets/secrets.yml:ro"
