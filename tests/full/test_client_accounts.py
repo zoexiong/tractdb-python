@@ -1,4 +1,4 @@
-import tests.docker_base as docker_base
+import base.docker.docker_commands
 import tractdb.client
 import unittest
 
@@ -21,7 +21,7 @@ class TestServerAccounts(unittest.TestCase):
     def client_admin(self):
         return tractdb.client.TractDBClient(
             tractdb_url='http://{}:8080'.format(
-                docker_base.ip()
+                base.docker.docker_commands.machine_ip()
             ),
             client_account='docker-couchdb-test-admin',
             client_account_password='docker-couchdb-test-admin-password'

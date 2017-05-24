@@ -1,4 +1,4 @@
-import tests.docker_base as docker_base
+import base.docker.docker_commands
 import tractdb.server.accounts
 import tractdb.server.documents
 import unittest
@@ -37,7 +37,7 @@ class TestServerDocuments(unittest.TestCase):
     def accountAdmin(self):
         return tractdb.server.accounts.AccountsAdmin(
             couchdb_url='http://{}:5984'.format(
-                docker_base.ip()
+                base.docker.docker_commands.machine_ip()
             ),
             couchdb_admin='docker-couchdb-test-admin',
             couchdb_admin_password='docker-couchdb-test-admin-password'
@@ -47,7 +47,7 @@ class TestServerDocuments(unittest.TestCase):
     def documentAdmin(self):
         return tractdb.server.documents.DocumentsAdmin(
             couchdb_url='http://{}:5984'.format(
-                docker_base.ip()
+                base.docker.docker_commands.machine_ip()
             ),
             couchdb_user=TEST_ACCOUNT,
             couchdb_user_password=TEST_ACCOUNT_PASSWORD
