@@ -4,7 +4,7 @@ test_couchdb:
   ports:
     - "5984:5984"
   volumes:
-    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-couchdb-secrets/secrets.yml:ro"
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/secrets_couchdb.yml:/docker-couchdb-secrets/secrets.yml:ro"
 
 test_pyramid:
   container_name: test_pyramid
@@ -15,7 +15,7 @@ test_pyramid:
     - "8080:8080"
   volumes:
     - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-config/pyramid_config.ini:/docker-pyramid-site/pyramid_config.production.ini:ro"
-    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/couchdb_secrets.yml:/docker-pyramid-site/couchdb_secrets.yml:ro"
-    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/pyramid_secrets.yml:/docker-pyramid-site/pyramid_secrets.yml:ro"
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/secrets_couchdb.yml:/docker-pyramid-site/secrets_couchdb.yml:ro"
+    - "{{ DOCKER_LOCALIZE_CWD }}/tests/test-secrets/secrets_pyramid.yml:/docker-pyramid-site/secrets_pyramid.yml:ro"
   links:
     - test_couchdb
