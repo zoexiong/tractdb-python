@@ -71,10 +71,11 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.exists_document(TEST_DOC_ID)
         )
 
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
+        doc_id = result['id']
         self.assertEquals(doc_id, TEST_DOC_ID)
 
         self.assertIn(
@@ -122,10 +123,11 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
+        doc_id = result['id']
 
         self.assertIn(
             doc_id,
@@ -149,10 +151,11 @@ class TestServerDocuments(unittest.TestCase):
             self.documentAdmin.list_documents()
         )
 
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT,
             doc_id=TEST_DOC_ID
         )
+        doc_id = result['id']
 
         self.assertEquals(
             doc_id,
@@ -170,9 +173,10 @@ class TestServerDocuments(unittest.TestCase):
 
     def test_create_document_id_unknown(self):
         # create a document without assigning it an _id, see that couch assigns one
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT
         )
+        doc_id = result['id']
 
         self.assertIn(
             doc_id,
@@ -190,9 +194,10 @@ class TestServerDocuments(unittest.TestCase):
 
     def test_create_get_update_get_document(self):
         # Create it
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT
         )
+        doc_id = result['id']
 
         # Confirm created
         self.assertIn(
@@ -264,10 +269,11 @@ class TestServerDocuments(unittest.TestCase):
         #  - using a the copy, modify and update again (this should fail, the _rev doesn't match anymore)
 
         # Create it
-        doc_id = self.documentAdmin.create_document(
+        result = self.documentAdmin.create_document(
             TEST_CONTENT,
             TEST_DOC_ID
         )
+        doc_id = result['id']
 
         # Confirm created
         self.assertIn(
