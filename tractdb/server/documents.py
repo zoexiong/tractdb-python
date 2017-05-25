@@ -43,7 +43,10 @@ class DocumentsAdmin(object):
         # Store the document
         created_id, created_rev = database.save(doc)
 
-        return created_id
+        return {
+            'id': created_id,
+            'rev': created_rev
+        }
 
     def exists_document(self, doc_id):
         server = self._couchdb_server
@@ -109,11 +112,14 @@ class DocumentsAdmin(object):
 
         # Update the document
         try:
-            result = database.save(doc)
+            doc_id, doc_rev = database.save(doc)
         except couchdb.http.ResourceConflict:
             raise Exception('Document "{:s} was modified.'.format(doc['_id']))
 
-        return result
+        return {
+            'id': doc_id,
+            'rev': doc_rev
+        }
 
     def delete_document(self, doc_id):
         """ Delete a doc.
