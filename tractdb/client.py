@@ -1,6 +1,5 @@
 import requests
 
-
 class TractDBClient(object):
     """ Client for interacting with a TractDB instance.
     """
@@ -103,3 +102,86 @@ class TractDBClient(object):
         json = response.json()
 
         return json['roles']
+
+    def create_document(self, doc, doc_id=None):
+        """ Create a document.
+        """
+        if doc_id:
+            response = requests.post(
+                '{}/{}'.format(
+                    self._tractdb_url,
+                    'documents'
+                ),
+                json={
+                    'id': doc_id,
+                    'document': doc
+                }
+            )
+        else:
+            response = requests.post(
+                '{}/{}'.format(
+                    self._tractdb_url,
+                    'documents'
+                ),
+                json={
+                    'document': doc
+                }
+            )
+        #     response_post = requests.post(
+        #         '{}/{}/{}'.format(
+        #             self._tractdb_url,
+        #             'document',
+        #             doc_id
+        #         ),
+        #         json=TEST_DOCUMENT
+        #     )
+
+    def get_document(self, doc_id):
+        """ Get a document.
+        """
+        response = requests.get(
+            '{}/{}/{}'.format(
+                self._tractdb_url,
+                'document',
+                doc_id
+            )
+        )
+
+    def update_document(self, doc):
+        """ Update a doc.
+        """
+        doc_id = doc['id']
+        response = requests.put(
+            '{}/{}/{}'.format(
+                self._tractdb_url,
+                'document',
+                doc_id
+            ),
+            json=doc
+        )
+
+    def delete_document(self, doc_id):
+        """ Delete a doc.
+        """
+        response = requests.delete(
+            '{}/{}/{}'.format(
+                self._tractdb_url,
+                'document',
+                doc_id
+            )
+        )
+
+    def list_documents(self):
+        """ List the id of all the documents of the given account.
+        """
+        response = requests.get(
+            '{}/{}'.format(
+                self._tractdb_url,
+                'documents'
+            )
+        )
+
+        json = response.json()
+
+        return json['documents']
+
