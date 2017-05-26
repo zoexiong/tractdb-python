@@ -16,7 +16,7 @@ def teardown():
     pass
 
 
-class TestServerAccounts(unittest.TestCase):
+class TestClientAccounts(unittest.TestCase):
     @property
     def client_admin(self):
         return tractdb.client.TractDBClient(
